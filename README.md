@@ -1,4 +1,4 @@
-# terraform-azure-pe_arch
+# azure-pe_arch
 
 IaC definitions for three of the supported Puppet Enterprise architectures for Azure
 
