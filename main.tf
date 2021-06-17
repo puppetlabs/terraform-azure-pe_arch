@@ -48,11 +48,11 @@ resource "random_id" "deployment" {
   byte_length = 3
 }
 
-# 
-#
+# Resource group is so central it makes sense to live in the main tf outside of modules
 resource "azurerm_resource_group" "resource_group" {
  name     = var.project
  location = var.region
+ tag      = "pe-${var.project}-${var.id}"
 }
 
 # Collect some repeated values used by each major component module into one to
@@ -65,11 +65,11 @@ locals {
 }
 
 # Contain all the networking configuration in a module for readability
-#module "networking" {
-  #source = "./modules/networking"
-  #id     = local.id
-  #allow  = local.allowed
-#}
+module "networking" {
+  source = "./modules/networking"
+  id     = local.id
+  allow  = local.allowed
+}
 
 # Contain all the loadbalancer configuration in a module for readability
 #module "loadbalancer" {
