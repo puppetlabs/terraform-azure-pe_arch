@@ -27,7 +27,7 @@ provider "hiera5" {
 }
 
 # GCP region and project to operating within
-provider "azure" {
+provider "azurerm" {
   features {}
 }
 
