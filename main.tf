@@ -52,7 +52,7 @@ resource "random_id" "deployment" {
 resource "azurerm_resource_group" "resource_group" {
  name     = var.project
  location = var.region
- tags      = "pe-${var.project}-${var.id}"
+ tags      = "pe-${var.project}-${local.id}"
 }
 
 # Collect some repeated values used by each major component module into one to

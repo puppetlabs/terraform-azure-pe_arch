@@ -6,6 +6,7 @@ locals {
 }
 
 resource "azurerm_virtual_network" "pe" {
+ name                = "pe-${var.id}"
  cidr_block          = "10.138.0.0/16"
  location            = var.region
  resource_group_name = var.project
