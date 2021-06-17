@@ -7,7 +7,7 @@ locals {
 
 resource "azurerm_virtual_network" "pe" {
  name                = "pe-${var.id}"
- address_space       = "10.138.0.0/16"
+ address_space       = ["10.138.0.0/16"]
  location            = var.region
  resource_group_name = var.project
  tags                = local.name_tag
