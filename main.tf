@@ -68,6 +68,7 @@ locals {
 module "networking" {
   source = "./modules/networking"
   id     = local.id
+  project = var.project
   allow  = local.allowed
 }
 
