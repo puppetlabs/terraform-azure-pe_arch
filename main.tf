@@ -50,9 +50,11 @@ resource "random_id" "deployment" {
 
 # Resource group is so central it makes sense to live in the main tf outside of modules
 resource "azurerm_resource_group" "resource_group" {
- name     = var.project
- location = var.region
- tags      = "pe-${var.project}-${random_id.deployment.hex}"
+  name     = var.project
+  location = var.region
+  tags     = {
+   name    = "pe-${var.project}-${local.id}"
+ }
 }
 
 # Collect some repeated values used by each major component module into one to
