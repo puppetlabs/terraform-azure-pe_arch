@@ -14,7 +14,7 @@ variable "ssh_key" {
 variable "region" {
   description = "Azure region that'll be targeted for infrastructure deployment"
   type        = string
-  default     = "west-us-2"
+  default     = "westus2"
 }
 variable "compiler_count" {
   description = "The quantity of compilers that are deployed behind a load balancer and will be spread across defined zones"
