@@ -52,7 +52,7 @@ resource "random_id" "deployment" {
 resource "azurerm_resource_group" "resource_group" {
  name     = var.project
  location = var.region
- tag      = "pe-${var.project}-${var.id}"
+ tags      = "pe-${var.project}-${var.id}"
 }
 
 # Collect some repeated values used by each major component module into one to
@@ -70,6 +70,7 @@ module "networking" {
   id     = local.id
   project = var.project
   allow  = local.allowed
+  region = var.region
 }
 
 # Contain all the loadbalancer configuration in a module for readability

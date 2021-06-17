@@ -13,3 +13,8 @@ variable allow {
 variable project {
   description = "Project string to differentiate and associate resources"
 }
+
+variable region {
+
+  description = "Region to create networking resources in"
+}
