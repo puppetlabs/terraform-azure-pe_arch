@@ -10,11 +10,10 @@ variable allow {
   description = "List of permitted IP subnets"
   type        = list(string)
 }
-variable project {
-  description = "Project string to differentiate and associate resources"
+variable resourcegroup {
+  description = "Resource group for network resources"
 }
 
 variable region {
-
   description = "Region to create networking resources in"
 }

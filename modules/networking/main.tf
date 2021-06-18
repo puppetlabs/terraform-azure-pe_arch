@@ -1,82 +1,48 @@
 # To contain each PE deployment, a fresh VPC to deploy into
 locals {
   name_tag = {
-    Name = "pe-${var.project}-${var.id}"
+    Name = "pe-${var.resourcegroup.name}-${var.id}"
   }
 }
 
+# You can make subnets via the virtual network but if you create subnet resources
+# teraform is unable to track the two and can / will create clashes so it will be clearer
+# to create subnet resources
 resource "azurerm_virtual_network" "pe" {
  name                = "pe-${var.id}"
  address_space       = ["10.138.0.0/16"]
  location            = var.region
- resource_group_name = var.project
+ resource_group_name = var.resourcegroup.name
  tags                = local.name_tag
 }
 
-#  vpc_id = virtual_network_id.pe.id
-#resource "aws_internet_gateway" "pe_gw" {
+resource "azurerm_subnet" "pe_subnet" {
+  name                 = "pe-${var.id}"
+  resource_group_name  = var.resourcegroup.name
+  virtual_network_name = azurerm_virtual_network.pe.name
+  address_prefixes     = ["10.138.1.0/24"]
+}
 
- # tags = local.name_tag
-#}
+# You can make security rules via the security group but if you
+# then creates seperate security rule resource teraform is unable 
+# to track the two and will create clashes so I will use seperate rules
+resource "azurerm_network_security_group" "pe_sg" {
+  name                = "pe-${var.id}"
+  location            = var.region
+  resource_group_name = var.resourcegroup.name
+  tags = local.name_tag
+}
 
-#TODO implement a subnet per availability zone
-#resource "aws_subnet" "pe_subnet" {
-#  vpc_id            = virtual_network_id.pe.id
-#  count             = length(data.aws_availability_zones.available.names)
-#  availability_zone = data.aws_availability_zones.available.names[count.index]
-
-#  cidr_block              = "10.138.${1 + count.index}.0/24"
-#  map_public_ip_on_launch = true
-
-#    Name = "pe-${var.project}-${var.id}-${data.aws_availability_zones.available.names[count.index]}"
-#  tags = {
-#  }
-
-#}
-#resource "aws_route_table" "pe_public" {
-#  vpc_id = virtual_network_id.pe.id
-#  route {
-#    gateway_id = aws_internet_gateway.pe_gw.id
-#    cidr_block = "0.0.0.0/0"
-#  tags = local.name_tag
-#  }
-#}
-
-#resource "aws_route_table_association" "pe_subnet_public" {
-#  count          = length(aws_subnet.pe_subnet)
-#  subnet_id      = aws_subnet.pe_subnet[count.index].id
-#  route_table_id = aws_route_table.pe_public.id
-#}
-
-# Instances should not be accessible by the open internet so a fresh VPC should
-# be restricted to organization allowed subnets
-#resource "aws_security_group" "pe_sg" {
-#  name        = "pe-${var.project}-${var.id}"
-#  description = "Allow TLS inbound traffic"
-#  vpc_id      = virtual_network_id.pe.id
-
-#  ingress {
-#    description = "General ingress rule"
-#    from_port   = 0
-#    to_port     = 0
-#    protocol    = "-1" # all protocols and ports
-#    cidr_blocks = var.allow
-
-#  }
-#  ingress {
-#    description = "Anything from VPC"
-#    from_port   = 0
-#    to_port     = 0
-#    protocol    = "-1" # all protocols and ports
-#    cidr_blocks = tolist([virtual_network_id.pe.cidr_block])
-#  }
-
-#  egress {
-#    from_port   = 0
-#    to_port     = 0
-#    protocol    = "-1"
-#    cidr_blocks = ["0.0.0.0/0"]
-#  }
-
-#  tags          = local.name_tag
-#}
+resource "azurerm_network_security_rule" "pe_ingressrule" {
+    name                         = "General ingress rule"
+    priority                     = 1000
+    direction                    = "Inbound"
+    access                       = "Allow"
+    protocol                     = "*"
+    source_port_range            = "*"
+    destination_port_range       = "*"
+    source_address_prefix        = "*"
+    destination_address_prefixes = var.allow
+    resource_group_name          = var.resourcegroup.name
+    network_security_group_name  = azurerm_network_security_group.pe_sg.name
+  }

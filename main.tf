@@ -68,11 +68,11 @@ locals {
 
 # Contain all the networking configuration in a module for readability
 module "networking" {
-  source = "./modules/networking"
-  id     = local.id
-  project = var.project
-  allow  = local.allowed
-  region = var.region
+  source        = "./modules/networking"
+  id            = local.id
+  resourcegroup = azurerm_resource_group.resource_group
+  allow         = local.allowed
+  region        = var.region
 }
 
 # Contain all the loadbalancer configuration in a module for readability
