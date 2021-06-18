@@ -7,5 +7,5 @@ output "virtual_network_id" {
 
 output "subnet_id" {
   value       = azurerm_subnet.pe_subnet.id
-  description = "subnet ids"
+  description = "subnet id"
 }
