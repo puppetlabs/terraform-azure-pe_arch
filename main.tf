@@ -86,18 +86,20 @@ module "networking" {
 #}
 
 # Contain all the instances configuration in a module for readability
-#module "instances" {
-#  source         = "./modules/instances"
-#  id             = local.id
-#  network        = local.network
-#  subnetwork     = local.subnetwork
-#  user           = var.user
-#  ssh_key        = var.ssh_key
-#  compiler_count = local.compiler_count
-#  node_count     = var.node_count
-#  instance_image = var.instance_image
-#  stack_name     = var.stack_name
-#  project        = var.project
-#  server_count   = data.hiera5.server_count.value
-#  database_count = data.hiera5.database_count.value
-#}
+module "instances" {
+  source             = "./modules/instances"
+  id                 = local.id
+  virtual_network_id = module.networking.virtual_network_id
+  subnet_id          = module.networking.subnet_id
+  user               = var.user
+  ssh_key            = var.ssh_key
+  compiler_count     = local.compiler_count
+  node_count         = var.node_count
+  instance_image     = var.instance_image
+  stack_name         = var.stack_name
+  project            = var.project
+  resource_group     = azurerm_resource_group.resource_group
+  region             = var.region
+  server_count       = data.hiera5.server_count.value
+  database_count     = data.hiera5.database_count.value
+}
