@@ -227,30 +227,30 @@ resource "azurerm_linux_virtual_machine" "compiler" {
 # User requested number of nodes to serve as agent nodes for when this module is
 # used to standup Puppet Enterprise for test and evaluation
 
-resource "azurerm_network_interface" "instance_nic" {
-  name                = "pe-instance-${var.project}-${count.index}-${var.id}"
+resource "azurerm_network_interface" "node_nic" {
+  name                = "pe-node-${var.project}-${count.index}-${var.id}"
   location            = var.region
-  count               = var.database_count
+  count               = var.node_count
   resource_group_name = var.resource_group.name
 }
-resource "azurerm_public_ip" "instance_public_ip" {
-  name                = "pe-instance-${var.project}-${count.index}-${var.id}"
+resource "azurerm_public_ip" "node_public_ip" {
+  name                = "pe-node-${var.project}-${count.index}-${var.id}"
   resource_group_name = var.resource_group.name
   location            = var.region
-  count               = var.instance_count
+  count               = var.node_count
   allocation_method   = "Static"
 
   tags = local.name_tag
 }
-resource "azurerm_linux_virtual_machine" "instance" {
+resource "azurerm_linux_virtual_machine" "node" {
   name                   = "pe-instance-${var.project}-${count.index}-${var.id}"
-  count                  = var.instance_count
+  count                  = var.node_count
   resource_group_name    = var.resource_group.name
   location               = var.region
   size                   = "Standard_D4_v4"
   admin_username         = var.user
   network_interface_ids  = [
-    azurerm_network_interface.instance_nic[count.index].id,
+    azurerm_network_interface.node_nic[count.index].id,
   ]
 
   admin_ssh_key {
