@@ -179,9 +179,9 @@ resource "azurerm_public_ip" "compiler_public_ip" {
 }
 
 resource "azurerm_network_interface" "compiler_nic" {
-  name                = "pe-psql-${var.project}-${count.index}-${var.id}"
+  name                = "pe-compiler-${var.project}-${count.index}-${var.id}"
   location            = var.region
-  count               = var.database_count
+  count               = var.compiler_count
   resource_group_name = var.resource_group.name
     ip_configuration {
     name                          = "compiler"
@@ -210,7 +210,7 @@ resource "azurerm_linux_virtual_machine" "compiler" {
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
-    disk_size_gb         = 15
+    disk_size_gb         = 30
   }
   source_image_reference {
     publisher = "OpenLogic"
@@ -283,7 +283,7 @@ resource "azurerm_linux_virtual_machine" "node" {
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
-    disk_size_gb         = 15
+    disk_size_gb         = 30
   }
   source_image_reference {
     publisher = "OpenLogic"
