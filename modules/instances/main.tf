@@ -29,7 +29,7 @@ resource "azurerm_network_interface" "server_nic" {
   resource_group_name = var.resource_group.name
 
   ip_configuration {
-    name                          = "internal"
+    name                          = "server"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.server_public_ip[count.index].id
@@ -91,13 +91,6 @@ resource "azurerm_linux_virtual_machine" "server" {
 # large is externalization of the database service. Again given out assumption
 # that extra large currently also means "with replica", we deploy two identical
 # hosts in extra large but nothing in the other two architectures
-
-resource "azurerm_network_interface" "psql_nic" {
-  name                = "pe-psql-${var.project}-${count.index}-${var.id}"
-  location            = var.region
-  count               = var.database_count
-  resource_group_name = var.resource_group.name
-}
 resource "azurerm_public_ip" "psql_public_ip" {
   name                = "pe-psql-${var.project}-${count.index}-${var.id}"
   resource_group_name = var.resource_group.name
@@ -106,6 +99,20 @@ resource "azurerm_public_ip" "psql_public_ip" {
   allocation_method   = "Static"
 
   tags = local.name_tag
+}
+
+resource "azurerm_network_interface" "psql_nic" {
+  name                = "pe-psql-${var.project}-${count.index}-${var.id}"
+  location            = var.region
+  count               = var.database_count
+  resource_group_name = var.resource_group.name
+
+  ip_configuration {
+    name                          = "psql"
+    subnet_id                     = var.subnet_id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.psql_public_ip[count.index].id
+  }
 }
 
 resource "azurerm_linux_virtual_machine" "psql" {
@@ -161,12 +168,6 @@ resource "azurerm_linux_virtual_machine" "psql" {
 # for agents. A user chosen number of Compilers will be deployed in large and
 # extra large but only ever zero can be deployed when the operating mode is set
 # to standard
-resource "azurerm_network_interface" "compiler_nic" {
-  name                = "pe-psql-${var.project}-${count.index}-${var.id}"
-  location            = var.region
-  count               = var.database_count
-  resource_group_name = var.resource_group.name
-}
 resource "azurerm_public_ip" "compiler_public_ip" {
   name                = "pe-compiler-${var.project}-${count.index}-${var.id}"
   resource_group_name = var.resource_group.name
@@ -176,6 +177,20 @@ resource "azurerm_public_ip" "compiler_public_ip" {
 
   tags = local.name_tag
 }
+
+resource "azurerm_network_interface" "compiler_nic" {
+  name                = "pe-psql-${var.project}-${count.index}-${var.id}"
+  location            = var.region
+  count               = var.database_count
+  resource_group_name = var.resource_group.name
+    ip_configuration {
+    name                          = "compiler"
+    subnet_id                     = var.subnet_id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.compiler_public_ip[count.index].id
+  }
+}
+
 resource "azurerm_linux_virtual_machine" "compiler" {
   name                   = "pe-compiler-${var.project}-${count.index}-${var.id}"
   count                  = var.compiler_count
@@ -226,13 +241,6 @@ resource "azurerm_linux_virtual_machine" "compiler" {
 
 # User requested number of nodes to serve as agent nodes for when this module is
 # used to standup Puppet Enterprise for test and evaluation
-
-resource "azurerm_network_interface" "node_nic" {
-  name                = "pe-node-${var.project}-${count.index}-${var.id}"
-  location            = var.region
-  count               = var.node_count
-  resource_group_name = var.resource_group.name
-}
 resource "azurerm_public_ip" "node_public_ip" {
   name                = "pe-node-${var.project}-${count.index}-${var.id}"
   resource_group_name = var.resource_group.name
@@ -242,6 +250,20 @@ resource "azurerm_public_ip" "node_public_ip" {
 
   tags = local.name_tag
 }
+
+resource "azurerm_network_interface" "node_nic" {
+  name                = "pe-node-${var.project}-${count.index}-${var.id}"
+  location            = var.region
+  count               = var.node_count
+  resource_group_name = var.resource_group.name
+      ip_configuration {
+    name                          = "node"
+    subnet_id                     = var.subnet_id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.node_public_ip[count.index].id
+  }
+}
+
 resource "azurerm_linux_virtual_machine" "node" {
   name                   = "pe-instance-${var.project}-${count.index}-${var.id}"
   count                  = var.node_count
