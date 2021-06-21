@@ -92,11 +92,17 @@ resource "azurerm_linux_virtual_machine" "server" {
 # that extra large currently also means "with replica", we deploy two identical
 # hosts in extra large but nothing in the other two architectures
 
+resource "azurerm_network_interface" "psql_nic" {
+  name                = "pe-psql-${var.project}-${count.index}-${var.id}"
+  location            = var.region
+  count               = var.database_count
+  resource_group_name = var.resource_group.name
+}
 resource "azurerm_public_ip" "psql_public_ip" {
   name                = "pe-psql-${var.project}-${count.index}-${var.id}"
   resource_group_name = var.resource_group.name
   location            = var.region
-  count               = var.server_count
+  count               = var.database_count
   allocation_method   = "Static"
 
   tags = local.name_tag
@@ -110,7 +116,7 @@ resource "azurerm_linux_virtual_machine" "psql" {
   size                   = "Standard_D8_v4"
   admin_username         = var.user
   network_interface_ids  = [
-    azurerm_network_interface.server_nic[count.index].id,
+    azurerm_network_interface.psql_nic[count.index].id,
   ]
 
   admin_ssh_key {
@@ -155,71 +161,131 @@ resource "azurerm_linux_virtual_machine" "psql" {
 # for agents. A user chosen number of Compilers will be deployed in large and
 # extra large but only ever zero can be deployed when the operating mode is set
 # to standard
+resource "azurerm_network_interface" "compiler_nic" {
+  name                = "pe-psql-${var.project}-${count.index}-${var.id}"
+  location            = var.region
+  count               = var.database_count
+  resource_group_name = var.resource_group.name
+}
+resource "azurerm_public_ip" "compiler_public_ip" {
+  name                = "pe-compiler-${var.project}-${count.index}-${var.id}"
+  resource_group_name = var.resource_group.name
+  location            = var.region
+  count               = var.compiler_count
+  allocation_method   = "Static"
 
+  tags = local.name_tag
+}
+resource "azurerm_linux_virtual_machine" "compiler" {
+  name                   = "pe-compiler-${var.project}-${count.index}-${var.id}"
+  count                  = var.compiler_count
+  resource_group_name    = var.resource_group.name
+  location               = var.region
+  size                   = "Standard_D4_v4"
+  admin_username         = var.user
+  network_interface_ids  = [
+    azurerm_network_interface.compiler_nic[count.index].id,
+  ]
 
+  admin_ssh_key {
+    username   = var.user
+    public_key = azurerm_ssh_public_key.pe_adm.public_key
+  }
 
-#resource "aws_instance" "compiler" {
-#  ami                    = data.aws_ami.centos7.id
-#  instance_type          = "t3.xlarge"
-  # count is used to effectively "no-op" this resource in the event that we
-  # deploy the standard architecture
-#  count                  = var.compiler_count
-#  key_name               = aws_key_pair.pe_adm.key_name
-#  subnet_id              = var.subnet_ids[count.index % length(var.subnet_ids)]
-#  tags                   = merge(var.default_tags, tomap({Name = "pe-compiler-${var.project}-${count.index}-${var.id}"}))
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+    disk_size_gb         = 15
+  }
+  source_image_reference {
+    publisher = "OpenLogic"
+    offer     = "CentOS"
+    sku       = "7_9-gen2"
+    version   = "latest"
+  }
 
-#    volume_size = 15
-#  root_block_device {
-#    volume_type = "gp2"
-#  }
-
+  tags        = local.name_tag
+  
   # Using remote-execs on each instance deployment to ensure things are really
   # really up before doing to the next step, helps with Bolt plans that'll
   # immediately connect then fail
   #
   # NOTE: you will need to add your private key corresponding to `ssh_key` 
   # to the ssh agent like so:
-  # $ eval `ssh-agent`
+  # $ eval $(ssh-agent)
   # $ ssh-add
-#  provisioner "remote-exec" {
-#    connection {
-#      host        = self.public_ip
-#      type        = "ssh"
-#      user        = var.user
-#    }
-#    inline = ["# Connected"]
-#  }
-#}
+  provisioner "remote-exec" {
+    connection {
+      host        = self.public_ip_address
+      type        = "ssh"
+      user        = var.user
+    }
+    inline = ["# Connected"]
+  }
+}
 
 # User requested number of nodes to serve as agent nodes for when this module is
 # used to standup Puppet Enterprise for test and evaluation
-#resource "aws_instance" "node" {
-#  ami                    = data.aws_ami.centos7.id
-#  instance_type          = "t3.small"
-#  count                  = var.node_count
-#  key_name               = aws_key_pair.pe_adm.key_name
-#  subnet_id              = var.subnet_ids[count.index % length(var.subnet_ids)]
-#  tags                   = merge(var.default_tags, tomap({Name = "pe-node-${var.project}-${count.index}-${var.id}"}))
 
-#  root_block_device {
-#    volume_size = 15
-#    volume_type = "gp2"
-#  }
+resource "azurerm_network_interface" "instance_nic" {
+  name                = "pe-instance-${var.project}-${count.index}-${var.id}"
+  location            = var.region
+  count               = var.database_count
+  resource_group_name = var.resource_group.name
+}
+resource "azurerm_public_ip" "instance_public_ip" {
+  name                = "pe-instance-${var.project}-${count.index}-${var.id}"
+  resource_group_name = var.resource_group.name
+  location            = var.region
+  count               = var.instance_count
+  allocation_method   = "Static"
 
+  tags = local.name_tag
+}
+resource "azurerm_linux_virtual_machine" "instance" {
+  name                   = "pe-instance-${var.project}-${count.index}-${var.id}"
+  count                  = var.instance_count
+  resource_group_name    = var.resource_group.name
+  location               = var.region
+  size                   = "Standard_D4_v4"
+  admin_username         = var.user
+  network_interface_ids  = [
+    azurerm_network_interface.instance_nic[count.index].id,
+  ]
+
+  admin_ssh_key {
+    username   = var.user
+    public_key = azurerm_ssh_public_key.pe_adm.public_key
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+    disk_size_gb         = 15
+  }
+  source_image_reference {
+    publisher = "OpenLogic"
+    offer     = "CentOS"
+    sku       = "7_9-gen2"
+    version   = "latest"
+  }
+
+  tags        = local.name_tag
+  
   # Using remote-execs on each instance deployment to ensure things are really
   # really up before doing to the next step, helps with Bolt plans that'll
   # immediately connect then fail
   #
   # NOTE: you will need to add your private key corresponding to `ssh_key` 
   # to the ssh agent like so:
-  # $ eval `ssh-agent`
+  # $ eval $(ssh-agent)
   # $ ssh-add
-#  provisioner "remote-exec" {
-#    connection {
-#      host        = self.public_ip
-#      type        = "ssh"
-#      user        = var.user
-#    }
-#    inline = ["# Connected"]
-#  }
-#}
+  provisioner "remote-exec" {
+    connection {
+      host        = self.public_ip_address
+      type        = "ssh"
+      user        = var.user
+    }
+    inline = ["# Connected"]
+  }
+}
