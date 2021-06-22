@@ -76,14 +76,19 @@ module "networking" {
 }
 
 # Contain all the loadbalancer configuration in a module for readability
-#module "loadbalancer" {
-#  source       = "./modules/loadbalancer"
-#  id           = local.id
-#  ports        = ["8140", "8142"]
-#  region       = var.region
-#  instances    = module.instances.compilers
-#  has_lb       = local.has_lb
-#}
+module "loadbalancer" {
+  source             = "./modules/loadbalancer"
+  id                 = local.id
+  ports              = ["8140", "8142"]
+  region             = var.region
+  instances          = module.instances.compilers
+  has_lb             = local.has_lb
+  resourcegroup      = azurerm_resource_group.resource_group
+  virtual_network_id = module.networking.virtual_network_id
+  compiler_nics      = module.instances.compiler_nics
+  compiler_count     = local.compiler_count
+  project            = var.project
+}
 
 # Contain all the instances configuration in a module for readability
 module "instances" {

@@ -2,6 +2,8 @@ locals {
   name_tag = {
     Name = "pe-${var.project}-${var.id}"
   }
+
+  av_set= var.compiler_count > 0 ? 1 : 0
 }
 
 resource "azurerm_ssh_public_key" "pe_adm" {
@@ -168,14 +170,21 @@ resource "azurerm_linux_virtual_machine" "psql" {
 # for agents. A user chosen number of Compilers will be deployed in large and
 # extra large but only ever zero can be deployed when the operating mode is set
 # to standard
+resource "azurerm_availability_set" "compiler_availability_set" {
+  name                = "example-aset"
+  count               = local.av_set
+  location            = var.region
+  resource_group_name = var.resource_group.name
+  tags = local.name_tag
+}
+
 resource "azurerm_public_ip" "compiler_public_ip" {
   name                = "pe-compiler-${var.project}-${count.index}-${var.id}"
   resource_group_name = var.resource_group.name
   location            = var.region
   count               = var.compiler_count
   allocation_method   = "Static"
-
-  tags = local.name_tag
+  tags                = local.name_tag
 }
 
 resource "azurerm_network_interface" "compiler_nic" {
@@ -196,6 +205,7 @@ resource "azurerm_linux_virtual_machine" "compiler" {
   count                  = var.compiler_count
   resource_group_name    = var.resource_group.name
   location               = var.region
+  availability_set_id    = azurerm_availability_set.compiler_availability_set[0].id
   size                   = "Standard_D4_v4"
   admin_username         = var.user
   network_interface_ids  = [
