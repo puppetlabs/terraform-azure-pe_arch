@@ -41,8 +41,8 @@ resource "azurerm_network_security_rule" "pe_ingressrule" {
     protocol                     = "*"
     source_port_range            = "*"
     destination_port_range       = "*"
-    source_address_prefix        = "*"
-    destination_address_prefixes = var.allow
+    source_address_prefix        = var.allow
+    destination_address_prefixes = "*"
     resource_group_name          = var.resourcegroup.name
     network_security_group_name  = azurerm_network_security_group.pe_sg.name
   }

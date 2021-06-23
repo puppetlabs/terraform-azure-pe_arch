@@ -60,7 +60,6 @@ resource "azurerm_resource_group" "resource_group" {
 # Collect some repeated values used by each major component module into one to
 # make them easier to update
 locals {
-  allowed        = concat(["10.128.0.0/9", "35.191.0.0/16", "130.211.0.0/22"], var.firewall_allow)
   compiler_count = data.hiera5_bool.has_compilers.value ? var.compiler_count : 0
   id             = random_id.deployment.hex
   has_lb         = data.hiera5_bool.has_compilers.value ? true : false
@@ -71,7 +70,7 @@ module "networking" {
   source        = "./modules/networking"
   id            = local.id
   resourcegroup = azurerm_resource_group.resource_group
-  allow         = local.allowed
+  allow         = var.firewall_allow
   region        = var.region
 }
 
