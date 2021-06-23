@@ -11,9 +11,8 @@ variable "region" {
   description = "Azure region that'll be targeted for infrastructure deployment"
   type        = string
 }
-variable instances {
-    description = "Instance resource objects that are to be added to the newly set up load balancers"
-    type        = set(any)
+variable primary_nic {
+    description = "Primary nic used to discovery fqdn of primary if LB isn't used"
 }
 variable "id" {
   description = "Randomly generated value used to produce unique names for everything to prevent collisions and visually link resources together"
