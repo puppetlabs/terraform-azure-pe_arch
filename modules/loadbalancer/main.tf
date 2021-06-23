@@ -55,6 +55,8 @@ resource "azurerm_lb_rule" "pe_compiler_lb" {
   name                           = var.ports[count.index]
   protocol                       = "Tcp"
   backend_port                   = var.ports[count.index]
+  backend_address_pool_id        = azurerm_lb_backend_address_pool.pe_compiler_lb[0].id
   frontend_port                  = var.ports[count.index]
   frontend_ip_configuration_name = "PE-compile-lb-PublicIPAddress"
+  probe_id                       = azurerm_lb_probe.pe_compiler_lb[0].id
 }
