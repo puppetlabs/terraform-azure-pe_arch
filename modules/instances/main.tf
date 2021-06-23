@@ -171,7 +171,7 @@ resource "azurerm_linux_virtual_machine" "psql" {
 # extra large but only ever zero can be deployed when the operating mode is set
 # to standard
 resource "azurerm_availability_set" "compiler_availability_set" {
-  name                = "example-aset"
+  name                = "pe-compiler-${var.project}-${count.index}-${var.id}"
   count               = local.av_set
   location            = var.region
   resource_group_name = var.resource_group.name
