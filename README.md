@@ -45,7 +45,7 @@ Types of things you'll be paying your cloud provider for
 ### Setup Requirements
 
 * [Install the Azure CLI] (https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
-* [AZ Login] (https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs#authenticating-to-azure)
+* [AZ Login](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs#authenticating-to-azure)
 * [Git Installed](https://git-scm.com/downloads)
 * [Terraform (>= 0.13.0) Installed](https://www.terraform.io/downloads.html)
 
