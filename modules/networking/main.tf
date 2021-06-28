@@ -6,7 +6,7 @@ locals {
 }
 
 # You can make subnets via the virtual network but if you create subnet resources
-# teraform is unable to track the two and can / will create clashes so it will be clearer
+# terraform is unable to track the two and can / will create clashes so it will be clearer
 # to create subnet resources
 resource "azurerm_virtual_network" "pe" {
  name                = "pe-${var.id}"
