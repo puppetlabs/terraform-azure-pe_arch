@@ -49,7 +49,7 @@ Types of things you'll be paying your cloud provider for
 * [Git Installed](https://git-scm.com/downloads)
 * [Terraform (>= 0.13.0) Installed](https://www.terraform.io/downloads.html)
 
-### Beginning with teraform-azure-pe_arch
+### Beginning with terraform-azure-pe_arch
 
 1. Clone this repository
     * `git clone https://github.com/puppetlabs/terraform-azure-pe_arch.git && cd terraform-azure-pe_arch`
