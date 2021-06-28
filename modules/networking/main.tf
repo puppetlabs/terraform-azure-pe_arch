@@ -24,7 +24,7 @@ resource "azurerm_subnet" "pe_subnet" {
 }
 
 # You can make security rules via the security group but if you
-# then creates seperate security rule resource teraform is unable 
+# then creates separate security rule resource terraform is unable 
 # to track the two and will create clashes so I will use seperate rules
 resource "azurerm_network_security_group" "pe_sg" {
   name                = "pe-${var.id}"
