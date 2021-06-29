@@ -184,7 +184,7 @@ resource "azurerm_public_ip" "compiler_public_ip" {
   location            = var.region
   count               = var.compiler_count
   allocation_method   = "Static"
-domain_name_label     = "pe-cpmpiler-${var.project}-${count.index}-${var.id}"
+  domain_name_label     = "pe-cpmpiler-${var.project}-${count.index}-${var.id}"
   tags                = local.name_tag
 }
 
@@ -267,7 +267,7 @@ resource "azurerm_network_interface" "node_nic" {
   location            = var.region
   count               = var.node_count
   resource_group_name = var.resource_group.name
-      ip_configuration {
+  ip_configuration {
     name                          = "node"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Dynamic"
