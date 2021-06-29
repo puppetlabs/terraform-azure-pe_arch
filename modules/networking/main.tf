@@ -35,6 +35,7 @@ resource "azurerm_network_security_group" "pe_sg" {
 
 resource "azurerm_network_security_rule" "pe_ingressrule" {
     name                         = "General ingress rule"
+    count                        = length(var.allow) >= 1 ? 1 : 0
     priority                     = 1000
     direction                    = "Inbound"
     access                       = "Allow"
