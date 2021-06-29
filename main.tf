@@ -80,7 +80,7 @@ module "loadbalancer" {
   id                 = local.id
   ports              = ["8140", "8142"]
   region             = var.region
-  primary_nic        = module.instances.primary_nic
+  primary_ip         = module.instances.primary_ip
   has_lb             = local.has_lb
   resourcegroup      = azurerm_resource_group.resource_group
   virtual_network_id = module.networking.virtual_network_id
