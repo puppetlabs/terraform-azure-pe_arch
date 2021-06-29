@@ -7,6 +7,7 @@ resource "azurerm_public_ip" "pe_compiler_lb_ip" {
   count               = local.lb_count
   location            = var.region
   resource_group_name = var.resourcegroup.name
+  domain_name_label   = "pe-compiler-lb-${var.project}-${var.id}"
   allocation_method   = "Static"
 }
 
