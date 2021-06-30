@@ -184,7 +184,7 @@ resource "azurerm_public_ip" "compiler_public_ip" {
   location            = var.region
   count               = var.compiler_count
   allocation_method   = "Static"
-  domain_name_label     = "pe-cpmpiler-${var.project}-${count.index}-${var.id}"
+  domain_name_label   = "pe-compiler-${var.project}-${count.index}-${var.id}"
   tags                = local.name_tag
 }
 
