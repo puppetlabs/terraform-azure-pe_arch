@@ -34,7 +34,7 @@ resource "azurerm_network_security_group" "pe_nsg" {
 }
 
 resource "azurerm_subnet_network_security_group_association" "pe_subnet_nsg" {
-  subnet_id                 = azurerm_subnet.examplpe_subnet.id
+  subnet_id                 = azurerm_subnet.pe_subnet.id
   network_security_group_id = azurerm_network_security_group.pe_nsg.id
 }
 
