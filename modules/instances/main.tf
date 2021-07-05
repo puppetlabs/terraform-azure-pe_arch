@@ -244,7 +244,7 @@ resource "azurerm_linux_virtual_machine" "compiler" {
     tags        = {
     Name = "pe-${var.project}-${var.id}"
     public_ip_address = azurerm_public_ip.compiler_public_ip[count.index].ip_address
-    internal_fqdn = "compiler${count.index}.${azurerm_network_interface.compiler[count.index].internal_domain_name_suffix}"
+    internal_fqdn = "compiler${count.index}.${azurerm_network_interface.compiler_nic[count.index].internal_domain_name_suffix}"
   }
   
   # Using remote-execs on each instance deployment to ensure things are really
@@ -322,7 +322,7 @@ resource "azurerm_linux_virtual_machine" "node" {
     tags        = {
     Name = "pe-${var.project}-${var.id}"
     public_ip_address = azurerm_public_ip.node_public_ip[count.index].ip_address
-    internal_fqdn = "node${count.index}.${azurerm_network_interface.node[count.index].internal_domain_name_suffix}"
+    internal_fqdn = "node${count.index}.${azurerm_network_interface.node_nic[count.index].internal_domain_name_suffix}"
   }
   
   # Using remote-execs on each instance deployment to ensure things are really
