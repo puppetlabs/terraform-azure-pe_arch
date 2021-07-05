@@ -20,7 +20,6 @@ resource "azurerm_public_ip" "server_public_ip" {
   location            = var.region
   count               = var.server_count
   allocation_method   = "Static"
-  domain_name_label   = "pe-server-${var.project}-${count.index}-${var.id}"
   tags = local.name_tag
 }
 
@@ -105,7 +104,6 @@ resource "azurerm_public_ip" "psql_public_ip" {
   location            = var.region
   count               = var.database_count
   allocation_method   = "Static"
-  domain_name_label   = "pe-psql-${var.project}-${count.index}-${var.id}"  
   tags = local.name_tag
 }
 
@@ -196,7 +194,6 @@ resource "azurerm_public_ip" "compiler_public_ip" {
   location            = var.region
   count               = var.compiler_count
   allocation_method   = "Static"
-  domain_name_label   = "pe-compiler-${var.project}-${count.index}-${var.id}"
   tags                = local.name_tag
 }
 
@@ -276,7 +273,6 @@ resource "azurerm_public_ip" "node_public_ip" {
   location            = var.region
   count               = var.node_count
   allocation_method   = "Static"
-  domain_name_label   = "pe-node-${var.project}-${count.index}-${var.id}"
   tags = local.name_tag
 }
 
