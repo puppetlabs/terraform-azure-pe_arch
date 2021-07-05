@@ -20,7 +20,6 @@ resource "azurerm_public_ip" "server_public_ip" {
   location            = var.region
   count               = var.server_count
   allocation_method   = "Static"
-  domain_name_label   = "pe-server-${var.project}-${count.index}-${var.id}"
   tags = local.name_tag
 }
 
@@ -69,7 +68,13 @@ resource "azurerm_linux_virtual_machine" "server" {
     version   = "latest"
   }
 
-  tags        = local.name_tag
+# Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
+# for consistency with other providers I thought it would work best to put these tags on the instance
+  tags        = {
+    Name = "pe-${var.project}-${var.id}"
+    public_ip_address = azurerm_public_ip.server_public_ip[count.index].ip_address
+    internal_fqdn = "pe-server-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
+  }
   
   # Using remote-execs on each instance deployment to ensure things are really
   # really up before doing to the next step, helps with Bolt plans that'll
@@ -99,7 +104,6 @@ resource "azurerm_public_ip" "psql_public_ip" {
   location            = var.region
   count               = var.database_count
   allocation_method   = "Static"
-  domain_name_label   = "pe-psql-${var.project}-${count.index}-${var.id}"  
   tags = local.name_tag
 }
 
@@ -145,7 +149,13 @@ resource "azurerm_linux_virtual_machine" "psql" {
     version   = "latest"
   }
 
-  tags        = local.name_tag
+# Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
+# for consistency with other providers I thought it would work best to put these tags on the instance
+  tags        = {
+    Name = "pe-${var.project}-${var.id}"
+    public_ip_address = azurerm_public_ip.psql_public_ip[count.index].ip_address
+    internal_fqdn = "pe-psql-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.psql_nic[count.index].internal_domain_name_suffix}"
+  }
   
   # Using remote-execs on each instance deployment to ensure things are really
   # really up before doing to the next step, helps with Bolt plans that'll
@@ -184,7 +194,6 @@ resource "azurerm_public_ip" "compiler_public_ip" {
   location            = var.region
   count               = var.compiler_count
   allocation_method   = "Static"
-  domain_name_label   = "pe-compiler-${var.project}-${count.index}-${var.id}"
   tags                = local.name_tag
 }
 
@@ -230,7 +239,13 @@ resource "azurerm_linux_virtual_machine" "compiler" {
     version   = "latest"
   }
 
-  tags        = local.name_tag
+# Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
+# for consistency with other providers I thought it would work best to put these tags on the instance
+    tags        = {
+    Name = "pe-${var.project}-${var.id}"
+    public_ip_address = azurerm_public_ip.compiler_public_ip[count.index].ip_address
+    internal_fqdn = "pe-compiler-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.compiler_nic[count.index].internal_domain_name_suffix}"
+  }
   
   # Using remote-execs on each instance deployment to ensure things are really
   # really up before doing to the next step, helps with Bolt plans that'll
@@ -258,7 +273,6 @@ resource "azurerm_public_ip" "node_public_ip" {
   location            = var.region
   count               = var.node_count
   allocation_method   = "Static"
-  domain_name_label   = "pe-node-${var.project}-${count.index}-${var.id}"
   tags = local.name_tag
 }
 
@@ -303,7 +317,13 @@ resource "azurerm_linux_virtual_machine" "node" {
     version   = "latest"
   }
 
-  tags        = local.name_tag
+# Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
+# for consistency with other providers I thought it would work best to put these tags on the instance
+    tags        = {
+    Name = "pe-${var.project}-${var.id}"
+    public_ip_address = azurerm_public_ip.node_public_ip[count.index].ip_address
+    internal_fqdn = "pe-instance-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.node_nic[count.index].internal_domain_name_suffix}"
+  }
   
   # Using remote-execs on each instance deployment to ensure things are really
   # really up before doing to the next step, helps with Bolt plans that'll

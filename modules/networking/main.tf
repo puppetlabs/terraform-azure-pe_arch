@@ -26,11 +26,16 @@ resource "azurerm_subnet" "pe_subnet" {
 # You can make security rules via the security group but if you
 # then creates separate security rule resource terraform is unable 
 # to track the two and will create clashes so I will use seperate rules
-resource "azurerm_network_security_group" "pe_sg" {
+resource "azurerm_network_security_group" "pe_nsg" {
   name                = "pe-${var.id}"
   location            = var.region
   resource_group_name = var.resourcegroup.name
   tags = local.name_tag
+}
+
+resource "azurerm_subnet_network_security_group_association" "pe_subnet_nsg" {
+  subnet_id                 = azurerm_subnet.pe_subnet.id
+  network_security_group_id = azurerm_network_security_group.pe_nsg.id
 }
 
 resource "azurerm_network_security_rule" "pe_ingressrule" {
@@ -45,5 +50,5 @@ resource "azurerm_network_security_rule" "pe_ingressrule" {
     source_address_prefixes      = var.allow
     destination_address_prefix   = "*"
     resource_group_name          = var.resourcegroup.name
-    network_security_group_name  = azurerm_network_security_group.pe_sg.name
+    network_security_group_name  = azurerm_network_security_group.pe_nsg.name
   }
