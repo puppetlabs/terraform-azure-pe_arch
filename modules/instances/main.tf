@@ -69,10 +69,9 @@ resource "azurerm_linux_virtual_machine" "server" {
   }
 
 # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
-# for consistency with other providers I thought it would work best to put these tags on the instance
+# for consistency with other providers I thought it would work best to put this tag on the instance
   tags        = {
     Name = "pe-${var.project}-${var.id}"
-    public_ip_address = azurerm_public_ip.server_public_ip[count.index].ip_address
     internal_fqdn = "pe-server-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
   }
   
@@ -150,10 +149,9 @@ resource "azurerm_linux_virtual_machine" "psql" {
   }
 
 # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
-# for consistency with other providers I thought it would work best to put these tags on the instance
+# for consistency with other providers I thought it would work best to put this tag on the instance
   tags        = {
     Name = "pe-${var.project}-${var.id}"
-    public_ip_address = azurerm_public_ip.psql_public_ip[count.index].ip_address
     internal_fqdn = "pe-psql-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.psql_nic[count.index].internal_domain_name_suffix}"
   }
   
@@ -240,10 +238,9 @@ resource "azurerm_linux_virtual_machine" "compiler" {
   }
 
 # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
-# for consistency with other providers I thought it would work best to put these tags on the instance
+# for consistency with other providers I thought it would work best to put this tag on the instance
     tags        = {
     Name = "pe-${var.project}-${var.id}"
-    public_ip_address = azurerm_public_ip.compiler_public_ip[count.index].ip_address
     internal_fqdn = "pe-compiler-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.compiler_nic[count.index].internal_domain_name_suffix}"
   }
   
@@ -318,10 +315,9 @@ resource "azurerm_linux_virtual_machine" "node" {
   }
 
 # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
-# for consistency with other providers I thought it would work best to put these tags on the instance
+# for consistency with other providers I thought it would work best to put this tag on the instance
     tags        = {
     Name = "pe-${var.project}-${var.id}"
-    public_ip_address = azurerm_public_ip.node_public_ip[count.index].ip_address
     internal_fqdn = "pe-instance-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.node_nic[count.index].internal_domain_name_suffix}"
   }
   
