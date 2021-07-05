@@ -322,7 +322,7 @@ resource "azurerm_linux_virtual_machine" "node" {
     tags        = {
     Name = "pe-${var.project}-${var.id}"
     public_ip_address = azurerm_public_ip.node_public_ip[count.index].ip_address
-    internal_fqdn = "$pe-instance-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.node_nic[count.index].internal_domain_name_suffix}"
+    internal_fqdn = "pe-instance-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.node_nic[count.index].internal_domain_name_suffix}"
   }
   
   # Using remote-execs on each instance deployment to ensure things are really
