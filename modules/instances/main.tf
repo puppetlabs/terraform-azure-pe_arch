@@ -20,6 +20,7 @@ resource "azurerm_public_ip" "server_public_ip" {
   location            = var.region
   count               = var.server_count
   allocation_method   = "Static"
+  domain_name_label   = "pe-server-${var.project}-${count.index}-${var.id}"
   tags = local.name_tag
 }
 
