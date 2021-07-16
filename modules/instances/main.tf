@@ -69,28 +69,11 @@ resource "azurerm_linux_virtual_machine" "server" {
     version   = "latest"
   }
 
-# Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
-# for consistency with other providers I thought it would work best to put this tag on the instance
+  # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
+  # for consistency with other providers I thought it would work best to put this tag on the instance
   tags        = {
     Name = "pe-${var.project}-${var.id}"
     internal_fqdn = "pe-server-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
-  }
-  
-  # Using remote-execs on each instance deployment to ensure things are really
-  # really up before doing to the next step, helps with Bolt plans that'll
-  # immediately connect then fail
-  #
-  # NOTE: you will need to add your private key corresponding to `ssh_key` 
-  # to the ssh agent like so:
-  # $ eval $(ssh-agent)
-  # $ ssh-add
-  provisioner "remote-exec" {
-    connection {
-      host        = self.public_ip_address
-      type        = "ssh"
-      user        = var.user
-    }
-    inline = ["# Connected"]
   }
 }
 
@@ -149,28 +132,11 @@ resource "azurerm_linux_virtual_machine" "psql" {
     version   = "latest"
   }
 
-# Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
-# for consistency with other providers I thought it would work best to put this tag on the instance
+  # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
+  # for consistency with other providers I thought it would work best to put this tag on the instance
   tags        = {
     Name = "pe-${var.project}-${var.id}"
     internal_fqdn = "pe-psql-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.psql_nic[count.index].internal_domain_name_suffix}"
-  }
-  
-  # Using remote-execs on each instance deployment to ensure things are really
-  # really up before doing to the next step, helps with Bolt plans that'll
-  # immediately connect then fail
-  #
-  # NOTE: you will need to add your private key corresponding to `ssh_key` 
-  # to the ssh agent like so:
-  # $ eval $(ssh-agent)
-  # $ ssh-add
-  provisioner "remote-exec" {
-    connection {
-      host        = self.public_ip_address
-      type        = "ssh"
-      user        = var.user
-    }
-    inline = ["# Connected"]
   }
 }
 
@@ -238,28 +204,11 @@ resource "azurerm_linux_virtual_machine" "compiler" {
     version   = "latest"
   }
 
-# Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
-# for consistency with other providers I thought it would work best to put this tag on the instance
+  # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
+  # for consistency with other providers I thought it would work best to put this tag on the instance
     tags        = {
     Name = "pe-${var.project}-${var.id}"
     internal_fqdn = "pe-compiler-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.compiler_nic[count.index].internal_domain_name_suffix}"
-  }
-  
-  # Using remote-execs on each instance deployment to ensure things are really
-  # really up before doing to the next step, helps with Bolt plans that'll
-  # immediately connect then fail
-  #
-  # NOTE: you will need to add your private key corresponding to `ssh_key` 
-  # to the ssh agent like so:
-  # $ eval $(ssh-agent)
-  # $ ssh-add
-  provisioner "remote-exec" {
-    connection {
-      host        = self.public_ip_address
-      type        = "ssh"
-      user        = var.user
-    }
-    inline = ["# Connected"]
   }
 }
 
@@ -315,27 +264,10 @@ resource "azurerm_linux_virtual_machine" "node" {
     version   = "latest"
   }
 
-# Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
-# for consistency with other providers I thought it would work best to put this tag on the instance
+  # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
+  # for consistency with other providers I thought it would work best to put this tag on the instance
     tags        = {
     Name = "pe-${var.project}-${var.id}"
     internal_fqdn = "pe-instance-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.node_nic[count.index].internal_domain_name_suffix}"
-  }
-  
-  # Using remote-execs on each instance deployment to ensure things are really
-  # really up before doing to the next step, helps with Bolt plans that'll
-  # immediately connect then fail
-  #
-  # NOTE: you will need to add your private key corresponding to `ssh_key` 
-  # to the ssh agent like so:
-  # $ eval $(ssh-agent)
-  # $ ssh-add
-  provisioner "remote-exec" {
-    connection {
-      host        = self.public_ip_address
-      type        = "ssh"
-      user        = var.user
-    }
-    inline = ["# Connected"]
   }
 }
