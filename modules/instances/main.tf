@@ -1,8 +1,4 @@
 locals {
-  tags   = merge({
-    description = "PEADM Deployed Puppet Enterprise"
-    project     = var.project
-  }, var.tags)
   av_set = var.compiler_count > 0 ? 1 : 0
 }
 
@@ -11,7 +7,7 @@ resource "azurerm_ssh_public_key" "pe_adm" {
   public_key          = file(var.ssh_key)
   resource_group_name = var.resource_group.name
   location            = var.region
-  tags                = local.tags
+  tags                = var.tags
 }
 
 resource "azurerm_public_ip" "server_public_ip" {
@@ -21,7 +17,7 @@ resource "azurerm_public_ip" "server_public_ip" {
   count               = var.server_count
   allocation_method   = "Static"
   domain_name_label   = "pe-server-${count.index}-${var.id}"
-  tags                = local.tags
+  tags                = var.tags
 }
 
 resource "azurerm_network_interface" "server_nic" {
@@ -29,7 +25,7 @@ resource "azurerm_network_interface" "server_nic" {
   location            = var.region
   count               = var.server_count
   resource_group_name = var.resource_group.name
-  tags                = local.tags
+  tags                = var.tags
 
   ip_configuration {
     name                          = "server"
@@ -75,7 +71,7 @@ resource "azurerm_linux_virtual_machine" "server" {
   # for consistency with other providers I thought it would work best to put this tag on the instance
   tags        = merge({
     internalDNS = "pe-server-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
-  }, local.tags)
+  }, var.tags)
 }
 
 # The biggest infrastructure difference to account for between large and extra
@@ -88,7 +84,7 @@ resource "azurerm_public_ip" "psql_public_ip" {
   location            = var.region
   count               = var.database_count
   allocation_method   = "Static"
-  tags                = local.tags
+  tags                = var.tags
 }
 
 resource "azurerm_network_interface" "psql_nic" {
@@ -96,7 +92,7 @@ resource "azurerm_network_interface" "psql_nic" {
   location            = var.region
   count               = var.database_count
   resource_group_name = var.resource_group.name
-  tags                = local.tags
+  tags                = var.tags
 
   ip_configuration {
     name                          = "psql"
@@ -138,7 +134,7 @@ resource "azurerm_linux_virtual_machine" "psql" {
   # for consistency with other providers I thought it would work best to put this tag on the instance
   tags        = merge({
     internalDNS = "pe-psql-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
-  }, local.tags)
+  }, var.tags)
 }
 
 # The defining difference between standard and other architectures is the
@@ -151,7 +147,7 @@ resource "azurerm_availability_set" "compiler_availability_set" {
   count               = local.av_set
   location            = var.region
   resource_group_name = var.resource_group.name
-  tags = local.tags
+  tags = var.tags
 }
 
 resource "azurerm_public_ip" "compiler_public_ip" {
@@ -160,7 +156,7 @@ resource "azurerm_public_ip" "compiler_public_ip" {
   location            = var.region
   count               = var.compiler_count
   allocation_method   = "Static"
-  tags                = local.tags
+  tags                = var.tags
 }
 
 resource "azurerm_network_interface" "compiler_nic" {
@@ -168,7 +164,7 @@ resource "azurerm_network_interface" "compiler_nic" {
   location            = var.region
   count               = var.compiler_count
   resource_group_name = var.resource_group.name
-  tags                = local.tags
+  tags                = var.tags
 
   ip_configuration {
     name                          = "compiler"
@@ -212,7 +208,7 @@ resource "azurerm_linux_virtual_machine" "compiler" {
   # for consistency with other providers I thought it would work best to put this tag on the instance
   tags = merge({
     internalDNS = "pe-compiler-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
-  }, local.tags)
+  }, var.tags)
 }
 
 # User requested number of nodes to serve as agent nodes for when this module is
@@ -223,7 +219,7 @@ resource "azurerm_public_ip" "node_public_ip" {
   location            = var.region
   count               = var.node_count
   allocation_method   = "Static"
-  tags = local.tags
+  tags = var.tags
 }
 
 resource "azurerm_network_interface" "node_nic" {
@@ -231,7 +227,7 @@ resource "azurerm_network_interface" "node_nic" {
   location            = var.region
   count               = var.node_count
   resource_group_name = var.resource_group.name
-  tags                = local.tags
+  tags                = var.tags
   ip_configuration {
     name                          = "node"
     subnet_id                     = var.subnet_id
@@ -272,5 +268,5 @@ resource "azurerm_linux_virtual_machine" "node" {
   # for consistency with other providers I thought it would work best to put this tag on the instance
   tags = merge({
     internal_fqdn = "pe-node-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
-  }, local.tags)
+  }, var.tags)
 }

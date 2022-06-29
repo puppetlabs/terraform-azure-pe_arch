@@ -1,11 +1,3 @@
-# To contain each PE deployment, a fresh VPC to deploy into
-locals {
-  tags = {
-    description = "PEADM Deployed Puppet Enterprise"
-    project     = var.resourcegroup.name
-  }
-}
-
 # You can make subnets via the virtual network but if you create subnet resources
 # terraform is unable to track the two and can / will create clashes so it will be clearer
 # to create subnet resources
@@ -14,7 +6,7 @@ resource "azurerm_virtual_network" "pe" {
  address_space       = ["10.138.0.0/16"]
  location            = var.region
  resource_group_name = var.resourcegroup.name
- tags                = local.tags
+ tags                = var.tags
 }
 
 resource "azurerm_subnet" "pe_subnet" {
@@ -31,7 +23,7 @@ resource "azurerm_network_security_group" "pe_nsg" {
   name                = "pe-${var.id}"
   location            = var.region
   resource_group_name = var.resourcegroup.name
-  tags                = local.tags
+  tags                = var.tags
 }
 
 resource "azurerm_subnet_network_security_group_association" "pe_subnet_nsg" {

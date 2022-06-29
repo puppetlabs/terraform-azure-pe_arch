@@ -13,7 +13,10 @@ variable allow {
 variable resourcegroup {
   description = "Resource group for network resources"
 }
-
+variable "tags" {
+  description = "A set of tags that will be assigned to resources along with required"
+  type        = map
+}
 variable region {
   description = "Region to create networking resources in"
 }

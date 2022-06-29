@@ -1,8 +1,4 @@
 locals {
-  tags     = {
-    description = "PEADM Deployed Puppet Enterprise"
-    project     = var.resourcegroup.name
-  }
   lb_count = var.has_lb ? 1 : 0
 }
 
@@ -11,7 +7,7 @@ resource "azurerm_public_ip" "pe_compiler_lb_ip" {
   count               = local.lb_count
   location            = var.region
   resource_group_name = var.resourcegroup.name
-  tags                = local.tags
+  tags                = var.tags
   domain_name_label   = "pe-compiler-lb-${var.id}"
   allocation_method   = "Static"
 }
@@ -23,7 +19,7 @@ resource "azurerm_lb" "pe_compiler_lb" {
   location            = var.region
   count               = local.lb_count
   resource_group_name = var.resourcegroup.name
-  tags                = local.tags
+  tags                = var.tags
 
   frontend_ip_configuration {
     name                 = "pe-compile-lb-${var.id}"
