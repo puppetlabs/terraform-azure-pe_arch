@@ -48,9 +48,10 @@ variable "node_count" {
   description = "The quantity of nodes that are deployed within the environment for testing"
   type        = number
 }
-variable "stack_name" {
-  description = "A name that'll help the user identify which instances are are part of a specific PE deployment"
-  type        = string
+variable "tags" {
+  description = "A set of tags that will be assigned to resources along with required"
+  type        = map
+  default     = {}
 }
 variable "region" {
   description = "Region to create instances in"

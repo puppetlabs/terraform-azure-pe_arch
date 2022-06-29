@@ -100,7 +100,7 @@ module "instances" {
   compiler_count     = local.compiler_count
   node_count         = var.node_count
   instance_image     = var.instance_image
-  stack_name         = var.stack_name
+  tags               = var.tags
   project            = var.project
   resource_group     = azurerm_resource_group.resource_group
   region             = var.region
