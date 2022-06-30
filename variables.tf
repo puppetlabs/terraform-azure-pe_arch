@@ -31,10 +31,10 @@ variable "instance_image" {
   type        = string
   default     = "CentOS-based 7.9 - Gen2"
 }
-variable "stack_name" {
-  description = "A name that'll help the user identify which instances are are part of a specific PE deployment"
-  type        = string
-  default     = "puppet-enterprise"
+variable "tags" {
+  description = "A set of tags that will be assigned to resources along with required"
+  type        = map
+  default     = {}
 }
 variable "firewall_allow" {
   description = "List of permitted IP subnets, list most include the internal network and single addresses must be passed as a /32"

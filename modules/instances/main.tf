@@ -1,34 +1,31 @@
 locals {
-  name_tag = {
-    Name = "pe-${var.project}-${var.id}"
-  }
-
-  av_set= var.compiler_count > 0 ? 1 : 0
+  av_set = var.compiler_count > 0 ? 1 : 0
 }
 
 resource "azurerm_ssh_public_key" "pe_adm" {
-  name   = "pe_adm_${var.project}"
-  public_key = file(var.ssh_key)
+  name                = "pe_adm_${var.id}"
+  public_key          = file(var.ssh_key)
   resource_group_name = var.resource_group.name
-  location = var.region
-  tags = local.name_tag
+  location            = var.region
+  tags                = var.tags
 }
 
 resource "azurerm_public_ip" "server_public_ip" {
-  name                = "pe-server-${var.project}-${count.index}-${var.id}"
+  name                = "pe-server-${count.index}-${var.id}"
   resource_group_name = var.resource_group.name
   location            = var.region
   count               = var.server_count
   allocation_method   = "Static"
-  domain_name_label   = "pe-server-${var.project}-${count.index}-${var.id}"
-  tags = local.name_tag
+  domain_name_label   = "pe-server-${count.index}-${var.id}"
+  tags                = var.tags
 }
 
 resource "azurerm_network_interface" "server_nic" {
-  name                = "pe-server-${var.project}-${count.index}-${var.id}"
+  name                = "pe-server-${count.index}-${var.id}"
   location            = var.region
   count               = var.server_count
   resource_group_name = var.resource_group.name
+  tags                = var.tags
 
   ip_configuration {
     name                          = "server"
@@ -42,7 +39,7 @@ resource "azurerm_network_interface" "server_nic" {
 # standard architecture the instance will also serve catalogs as a Compiler in
 # addition to hosting all other core services. 
 resource "azurerm_linux_virtual_machine" "server" {
-  name                   = "pe-server-${var.project}-${count.index}-${var.id}"
+  name                   = "pe-server-${count.index}-${var.id}"
   count                  = var.server_count
   resource_group_name    = var.resource_group.name
   location               = var.region
@@ -62,6 +59,7 @@ resource "azurerm_linux_virtual_machine" "server" {
     storage_account_type = "Standard_LRS"
     disk_size_gb         = 50
   }
+
   source_image_reference {
     publisher = "OpenLogic"
     offer     = "CentOS"
@@ -71,10 +69,9 @@ resource "azurerm_linux_virtual_machine" "server" {
 
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
   # for consistency with other providers I thought it would work best to put this tag on the instance
-  tags        = {
-    Name = "pe-${var.project}-${var.id}"
-    internal_fqdn = "pe-server-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
-  }
+  tags        = merge({
+    internalDNS = "pe-server-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
+  }, var.tags)
 }
 
 # The biggest infrastructure difference to account for between large and extra
@@ -82,19 +79,20 @@ resource "azurerm_linux_virtual_machine" "server" {
 # that extra large currently also means "with replica", we deploy two identical
 # hosts in extra large but nothing in the other two architectures
 resource "azurerm_public_ip" "psql_public_ip" {
-  name                = "pe-psql-${var.project}-${count.index}-${var.id}"
+  name                = "pe-psql-${count.index}-${var.id}"
   resource_group_name = var.resource_group.name
   location            = var.region
   count               = var.database_count
   allocation_method   = "Static"
-  tags = local.name_tag
+  tags                = var.tags
 }
 
 resource "azurerm_network_interface" "psql_nic" {
-  name                = "pe-psql-${var.project}-${count.index}-${var.id}"
+  name                = "pe-psql-${count.index}-${var.id}"
   location            = var.region
   count               = var.database_count
   resource_group_name = var.resource_group.name
+  tags                = var.tags
 
   ip_configuration {
     name                          = "psql"
@@ -105,7 +103,7 @@ resource "azurerm_network_interface" "psql_nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "psql" {
-  name                   = "pe-psql-${var.project}-${count.index}-${var.id}"
+  name                   = "pe-psql-${count.index}-${var.id}"
   count                  = var.database_count
   resource_group_name    = var.resource_group.name
   location               = var.region
@@ -134,10 +132,9 @@ resource "azurerm_linux_virtual_machine" "psql" {
 
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
   # for consistency with other providers I thought it would work best to put this tag on the instance
-  tags        = {
-    Name = "pe-${var.project}-${var.id}"
-    internal_fqdn = "pe-psql-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.psql_nic[count.index].internal_domain_name_suffix}"
-  }
+  tags        = merge({
+    internalDNS = "pe-psql-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
+  }, var.tags)
 }
 
 # The defining difference between standard and other architectures is the
@@ -146,28 +143,30 @@ resource "azurerm_linux_virtual_machine" "psql" {
 # extra large but only ever zero can be deployed when the operating mode is set
 # to standard
 resource "azurerm_availability_set" "compiler_availability_set" {
-  name                = "pe-compiler-${var.project}-${count.index}-${var.id}"
+  name                = "pe-compiler-${count.index}-${var.id}"
   count               = local.av_set
   location            = var.region
   resource_group_name = var.resource_group.name
-  tags = local.name_tag
+  tags = var.tags
 }
 
 resource "azurerm_public_ip" "compiler_public_ip" {
-  name                = "pe-compiler-${var.project}-${count.index}-${var.id}"
+  name                = "pe-compiler-${count.index}-${var.id}"
   resource_group_name = var.resource_group.name
   location            = var.region
   count               = var.compiler_count
   allocation_method   = "Static"
-  tags                = local.name_tag
+  tags                = var.tags
 }
 
 resource "azurerm_network_interface" "compiler_nic" {
-  name                = "pe-compiler-${var.project}-${count.index}-${var.id}"
+  name                = "pe-compiler-${count.index}-${var.id}"
   location            = var.region
   count               = var.compiler_count
   resource_group_name = var.resource_group.name
-    ip_configuration {
+  tags                = var.tags
+
+  ip_configuration {
     name                          = "compiler"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Dynamic"
@@ -176,7 +175,7 @@ resource "azurerm_network_interface" "compiler_nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "compiler" {
-  name                   = "pe-compiler-${var.project}-${count.index}-${var.id}"
+  name                   = "pe-compiler-${count.index}-${var.id}"
   count                  = var.compiler_count
   resource_group_name    = var.resource_group.name
   location               = var.region
@@ -197,6 +196,7 @@ resource "azurerm_linux_virtual_machine" "compiler" {
     storage_account_type = "Standard_LRS"
     disk_size_gb         = 30
   }
+
   source_image_reference {
     publisher = "OpenLogic"
     offer     = "CentOS"
@@ -206,28 +206,28 @@ resource "azurerm_linux_virtual_machine" "compiler" {
 
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
   # for consistency with other providers I thought it would work best to put this tag on the instance
-    tags        = {
-    Name = "pe-${var.project}-${var.id}"
-    internal_fqdn = "pe-compiler-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.compiler_nic[count.index].internal_domain_name_suffix}"
-  }
+  tags = merge({
+    internalDNS = "pe-compiler-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
+  }, var.tags)
 }
 
 # User requested number of nodes to serve as agent nodes for when this module is
 # used to standup Puppet Enterprise for test and evaluation
 resource "azurerm_public_ip" "node_public_ip" {
-  name                = "pe-node-${var.project}-${count.index}-${var.id}"
+  name                = "pe-node-${count.index}-${var.id}"
   resource_group_name = var.resource_group.name
   location            = var.region
   count               = var.node_count
   allocation_method   = "Static"
-  tags = local.name_tag
+  tags = var.tags
 }
 
 resource "azurerm_network_interface" "node_nic" {
-  name                = "pe-node-${var.project}-${count.index}-${var.id}"
+  name                = "pe-node-${count.index}-${var.id}"
   location            = var.region
   count               = var.node_count
   resource_group_name = var.resource_group.name
+  tags                = var.tags
   ip_configuration {
     name                          = "node"
     subnet_id                     = var.subnet_id
@@ -237,7 +237,7 @@ resource "azurerm_network_interface" "node_nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "node" {
-  name                   = "pe-instance-${var.project}-${count.index}-${var.id}"
+  name                   = "pe-node-${count.index}-${var.id}"
   count                  = var.node_count
   resource_group_name    = var.resource_group.name
   location               = var.region
@@ -266,8 +266,7 @@ resource "azurerm_linux_virtual_machine" "node" {
 
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
   # for consistency with other providers I thought it would work best to put this tag on the instance
-    tags        = {
-    Name = "pe-${var.project}-${var.id}"
-    internal_fqdn = "pe-instance-${var.project}-${count.index}-${var.id}.${azurerm_network_interface.node_nic[count.index].internal_domain_name_suffix}"
-  }
+  tags = merge({
+    internal_fqdn = "pe-node-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
+  }, var.tags)
 }

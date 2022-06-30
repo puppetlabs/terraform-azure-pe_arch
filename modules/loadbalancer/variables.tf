@@ -25,18 +25,16 @@ variable "has_lb" {
 variable virtual_network_id {
     description = "Azure virtual networks that are created by the networking module"
 }
-variable project {
-  description = "Project string to differentiate and associate resources"
-}
-
 variable resourcegroup {
   description = "Resource group for network resources"
 }
-
 variable compiler_count {
   description = "Number of compilers created"
 }
-
 variable compiler_nics {
   description = "List of compilers nics"
+}
+variable "tags" {
+  description = "A set of tags that will be assigned to resources along with required"
+  type        = map
 }

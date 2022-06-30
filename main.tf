@@ -52,9 +52,7 @@ resource "random_id" "deployment" {
 resource "azurerm_resource_group" "resource_group" {
   name     = var.project
   location = var.region
-  tags     = {
-   name    = "pe-${var.project}-${local.id}"
- }
+  tags     = local.tags
 }
 
 # Collect some repeated values used by each major component module into one to
@@ -63,6 +61,10 @@ locals {
   compiler_count = data.hiera5_bool.has_compilers.value ? var.compiler_count : 0
   id             = random_id.deployment.hex
   has_lb         = data.hiera5_bool.has_compilers.value ? true : false
+  tags           = merge({
+    description = "PEADM Deployed Puppet Enterprise"
+    project     = var.project
+  }, var.tags)
 }
 
 # Contain all the networking configuration in a module for readability
@@ -72,6 +74,7 @@ module "networking" {
   resourcegroup = azurerm_resource_group.resource_group
   allow         = var.firewall_allow
   region        = var.region
+  tags          = local.tags
 }
 
 # Contain all the loadbalancer configuration in a module for readability
@@ -86,7 +89,7 @@ module "loadbalancer" {
   virtual_network_id = module.networking.virtual_network_id
   compiler_nics      = module.instances.compiler_nics
   compiler_count     = local.compiler_count
-  project            = var.project
+  tags               = local.tags
 }
 
 # Contain all the instances configuration in a module for readability
@@ -100,7 +103,7 @@ module "instances" {
   compiler_count     = local.compiler_count
   node_count         = var.node_count
   instance_image     = var.instance_image
-  stack_name         = var.stack_name
+  tags               = local.tags
   project            = var.project
   resource_group     = azurerm_resource_group.resource_group
   region             = var.region
