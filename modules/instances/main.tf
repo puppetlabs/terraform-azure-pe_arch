@@ -52,7 +52,7 @@ resource "azurerm_linux_virtual_machine" "server" {
   ]
 
   depends_on = [
-    azurerm_network_interface.server_nic[count.index]
+    azurerm_network_interface.server_nic
   ]
 
   admin_ssh_key {
@@ -133,6 +133,10 @@ resource "azurerm_linux_virtual_machine" "psql" {
     azurerm_network_interface.psql_nic[count.index].id,
   ]
 
+  depends_on = [
+    azurerm_network_interface.psql_nic
+  ]
+
   admin_ssh_key {
     username   = var.user
     public_key = azurerm_ssh_public_key.pe_adm.public_key
@@ -168,7 +172,7 @@ resource "azurerm_linux_virtual_machine" "psql" {
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
   # for consistency with other providers I thought it would work best to put this tag on the instance
   tags        = merge({
-    internalDNS = "pe-psql-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
+    internalDNS = "pe-psql-${count.index}-${var.id}.${azurerm_network_interface.psql_nic[count.index].internal_domain_name_suffix}"
   }, var.tags)
 }
 
@@ -221,6 +225,10 @@ resource "azurerm_linux_virtual_machine" "compiler" {
     azurerm_network_interface.compiler_nic[count.index].id,
   ]
 
+  depends_on = [
+    azurerm_network_interface.compiler_nic
+  ]
+
   admin_ssh_key {
     username   = var.user
     public_key = azurerm_ssh_public_key.pe_adm.public_key
@@ -256,7 +264,7 @@ resource "azurerm_linux_virtual_machine" "compiler" {
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
   # for consistency with other providers I thought it would work best to put this tag on the instance
   tags = merge({
-    internalDNS = "pe-compiler-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
+    internalDNS = "pe-compiler-${count.index}-${var.id}.${azurerm_network_interface.compiler_nic[count.index].internal_domain_name_suffix}"
   }, var.tags)
 }
 
@@ -296,6 +304,10 @@ resource "azurerm_linux_virtual_machine" "node" {
     azurerm_network_interface.node_nic[count.index].id,
   ]
 
+  depends_on = [
+    azurerm_network_interface.node_nic
+  ]
+
   admin_ssh_key {
     username   = var.user
     public_key = azurerm_ssh_public_key.pe_adm.public_key
@@ -331,6 +343,6 @@ resource "azurerm_linux_virtual_machine" "node" {
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
   # for consistency with other providers I thought it would work best to put this tag on the instance
   tags = merge({
-    internal_fqdn = "pe-node-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
+    internal_fqdn = "pe-node-${count.index}-${var.id}.${azurerm_network_interface.node_nic[count.index].internal_domain_name_suffix}"
   }, var.tags)
 }
