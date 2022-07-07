@@ -51,6 +51,10 @@ resource "azurerm_linux_virtual_machine" "server" {
     azurerm_network_interface.server_nic[count.index].id,
   ]
 
+  depends_on = [
+    azurerm_network_interface.server_nic[count.index]
+  ]
+
   admin_ssh_key {
     username   = var.user
     public_key = azurerm_ssh_public_key.pe_adm.public_key
