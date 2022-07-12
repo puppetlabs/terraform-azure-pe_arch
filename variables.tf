@@ -29,12 +29,12 @@ variable "node_count" {
 variable "instance_image" {
   description = "The disk image to use when deploying new cloud instances in the form of a full length Image ID or Marketplace URN"
   type        = string
-  default     = "almalinux:almalinux:8_5-gen2:latest"
+  default     = "almalinux:almalinux:8-gen2:latest"
 }
 variable "image_plan" {
   description = "The Marketplace offering's plan if it has one in Marketplace URN style, name:product:publisher"
   type        = string
-  default     = "8_5-gen2:almalinux:almalinux"
+  default     = "8-gen2:almalinux:almalinux"
 }
 variable "tags" {
   description = "A set of tags that will be assigned to resources along with required"
