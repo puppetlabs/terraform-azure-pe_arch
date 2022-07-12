@@ -1,5 +1,7 @@
 locals {
   av_set = var.compiler_count > 0 ? 1 : 0
+  dynamic_image_reference = var.image_id == null ? [1] : []
+  dynamic_image_plan = var.image_id == null ? length(compact([var.plan_name, var.plan_product, var.plan_publisher])) == 3 ? [1] : []  : []
 }
 
 resource "azurerm_ssh_public_key" "pe_adm" {
@@ -49,6 +51,10 @@ resource "azurerm_linux_virtual_machine" "server" {
     azurerm_network_interface.server_nic[count.index].id,
   ]
 
+  depends_on = [
+    azurerm_network_interface.server_nic
+  ]
+
   admin_ssh_key {
     username   = var.user
     public_key = azurerm_ssh_public_key.pe_adm.public_key
@@ -60,11 +66,25 @@ resource "azurerm_linux_virtual_machine" "server" {
     disk_size_gb         = 50
   }
 
-  source_image_reference {
-    publisher = "OpenLogic"
-    offer     = "CentOS"
-    sku       = "7_9-gen2"
-    version   = "latest"
+  source_image_id = var.image_id
+
+  dynamic "source_image_reference" {
+    for_each = local.dynamic_image_reference
+    content {
+      publisher = var.image_publisher
+      offer     = var.image_offer
+      sku       = var.image_sku
+      version   = var.image_version
+    }
+  }
+
+  dynamic "plan" {
+    for_each = local.dynamic_image_plan
+    content {
+      name      = var.plan_name
+      product   = var.plan_product
+      publisher = var.plan_publisher
+    }
   }
 
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
@@ -113,6 +133,10 @@ resource "azurerm_linux_virtual_machine" "psql" {
     azurerm_network_interface.psql_nic[count.index].id,
   ]
 
+  depends_on = [
+    azurerm_network_interface.psql_nic
+  ]
+
   admin_ssh_key {
     username   = var.user
     public_key = azurerm_ssh_public_key.pe_adm.public_key
@@ -123,17 +147,32 @@ resource "azurerm_linux_virtual_machine" "psql" {
     storage_account_type = "Standard_LRS"
     disk_size_gb         = 100
   }
-  source_image_reference {
-    publisher = "OpenLogic"
-    offer     = "CentOS"
-    sku       = "7_9-gen2"
-    version   = "latest"
+
+  source_image_id = var.image_id
+
+  dynamic "source_image_reference" {
+    for_each = local.dynamic_image_reference
+    content {
+      publisher = var.image_publisher
+      offer     = var.image_offer
+      sku       = var.image_sku
+      version   = var.image_version
+    }
+  }
+
+  dynamic "plan" {
+    for_each = local.dynamic_image_plan
+    content {
+      name      = var.plan_name
+      product   = var.plan_product
+      publisher = var.plan_publisher
+    }
   }
 
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
   # for consistency with other providers I thought it would work best to put this tag on the instance
   tags        = merge({
-    internalDNS = "pe-psql-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
+    internalDNS = "pe-psql-${count.index}-${var.id}.${azurerm_network_interface.psql_nic[count.index].internal_domain_name_suffix}"
   }, var.tags)
 }
 
@@ -186,6 +225,10 @@ resource "azurerm_linux_virtual_machine" "compiler" {
     azurerm_network_interface.compiler_nic[count.index].id,
   ]
 
+  depends_on = [
+    azurerm_network_interface.compiler_nic
+  ]
+
   admin_ssh_key {
     username   = var.user
     public_key = azurerm_ssh_public_key.pe_adm.public_key
@@ -197,17 +240,31 @@ resource "azurerm_linux_virtual_machine" "compiler" {
     disk_size_gb         = 30
   }
 
-  source_image_reference {
-    publisher = "OpenLogic"
-    offer     = "CentOS"
-    sku       = "7_9-gen2"
-    version   = "latest"
+  source_image_id = var.image_id
+
+  dynamic "source_image_reference" {
+    for_each = local.dynamic_image_reference
+    content {
+      publisher = var.image_publisher
+      offer     = var.image_offer
+      sku       = var.image_sku
+      version   = var.image_version
+    }
+  }
+
+  dynamic "plan" {
+    for_each = local.dynamic_image_plan
+    content {
+      name      = var.plan_name
+      product   = var.plan_product
+      publisher = var.plan_publisher
+    }
   }
 
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
   # for consistency with other providers I thought it would work best to put this tag on the instance
   tags = merge({
-    internalDNS = "pe-compiler-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
+    internalDNS = "pe-compiler-${count.index}-${var.id}.${azurerm_network_interface.compiler_nic[count.index].internal_domain_name_suffix}"
   }, var.tags)
 }
 
@@ -247,6 +304,10 @@ resource "azurerm_linux_virtual_machine" "node" {
     azurerm_network_interface.node_nic[count.index].id,
   ]
 
+  depends_on = [
+    azurerm_network_interface.node_nic
+  ]
+
   admin_ssh_key {
     username   = var.user
     public_key = azurerm_ssh_public_key.pe_adm.public_key
@@ -257,16 +318,31 @@ resource "azurerm_linux_virtual_machine" "node" {
     storage_account_type = "Standard_LRS"
     disk_size_gb         = 30
   }
-  source_image_reference {
-    publisher = "OpenLogic"
-    offer     = "CentOS"
-    sku       = "7_9-gen2"
-    version   = "latest"
+  
+  source_image_id = var.image_id
+
+  dynamic "source_image_reference" {
+    for_each = local.dynamic_image_reference
+    content {
+      publisher = var.image_publisher
+      offer     = var.image_offer
+      sku       = var.image_sku
+      version   = var.image_version
+    }
+  }
+
+  dynamic "plan" {
+    for_each = local.dynamic_image_plan
+    content {
+      name      = var.plan_name
+      product   = var.plan_product
+      publisher = var.plan_publisher
+    }
   }
 
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
   # for consistency with other providers I thought it would work best to put this tag on the instance
   tags = merge({
-    internal_fqdn = "pe-node-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
+    internal_fqdn = "pe-node-${count.index}-${var.id}.${azurerm_network_interface.node_nic[count.index].internal_domain_name_suffix}"
   }, var.tags)
 }

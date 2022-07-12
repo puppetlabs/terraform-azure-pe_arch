@@ -40,8 +40,34 @@ variable "project" {
 variable "resource_group" {
   description = "Name of resource group to contain resources"
 }
-variable "instance_image" {
-  description = "The disk image to use when deploying new cloud instances"
+variable "image_id" {
+  description = "The custom image ID to use for deploying new cloud instances"
+}
+variable "image_offer" {
+  description = "The Marketplace image offer to use when deploying new cloud instances"
+  type        = string
+}
+variable "image_publisher" {
+  description = "The Marketplace image publisher to deploy from for new cloud instances"
+  type        = string
+}
+variable "image_version" {
+  description = "The Marketplace image version to deploy from for new cloud instances"
+  type        = string
+}
+variable "image_sku" {
+  description = "The Marketplace sku to use when deploying new cloud instances"
+  type        = string
+}
+variable "plan_name" {
+  description = "The Marketplace image plan name"
+}
+variable "plan_product" {
+  description = "The Marketplace image product name"
+  type        = string
+}
+variable "plan_publisher" {
+  description = "The Marketplace image publisher name"
   type        = string
 }
 variable "node_count" {

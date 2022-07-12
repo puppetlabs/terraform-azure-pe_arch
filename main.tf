@@ -59,9 +59,19 @@ resource "azurerm_resource_group" "resource_group" {
 # make them easier to update
 locals {
   compiler_count = data.hiera5_bool.has_compilers.value ? var.compiler_count : 0
-  id             = random_id.deployment.hex
-  has_lb         = data.hiera5_bool.has_compilers.value ? true : false
-  tags           = merge({
+  id              = random_id.deployment.hex
+  has_lb          = data.hiera5_bool.has_compilers.value ? true : false
+  image_id        = length(regexall("^/", var.instance_image)) > 0 ? var.instance_image : null
+  image_list      = local.image_id == null ? split(":", var.instance_image) : null
+  image_publisher = try(local.image_list[0], null)
+  image_offer     = try(local.image_list[1], null)
+  image_sku       = try(local.image_list[2], null)
+  image_version   = try(local.image_list[3], null)
+  plan_list       = try(split(":", var.image_plan), null)
+  plan_name       = try(local.plan_list[0], null)
+  plan_product    = try(local.plan_list[1], null)
+  plan_publisher  = try(local.plan_list[2], null)
+  tags            = merge({
     description = "PEADM Deployed Puppet Enterprise"
     project     = var.project
   }, var.tags)
@@ -102,8 +112,15 @@ module "instances" {
   ssh_key            = var.ssh_key
   compiler_count     = local.compiler_count
   node_count         = var.node_count
-  instance_image     = var.instance_image
   tags               = local.tags
+  image_id           = local.image_id
+  image_publisher    = local.image_publisher
+  image_offer        = local.image_offer
+  image_sku          = local.image_sku
+  image_version      = local.image_version
+  plan_name          = local.plan_name
+  plan_product       = local.plan_product
+  plan_publisher     = local.plan_publisher
   project            = var.project
   resource_group     = azurerm_resource_group.resource_group
   region             = var.region
