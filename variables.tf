@@ -36,6 +36,23 @@ variable "image_plan" {
   type        = string
   default     = "8-gen2:almalinux:almalinux"
 }
+
+variable "windows_node_count" {
+  description = "The quantity of nodes that are deployed within the environment for testing"
+  type        = number
+  default     = 1
+}
+variable "windows_instance_image" {
+  description = "The disk image to use when deploying new cloud instances in the form of a full length Image ID or Marketplace URN"
+  type        = string
+  default     = "MicrosoftWindowsServer:WindowsServer:2022-datacenter-azure-edition-smalldisk:latest"
+}
+variable "windows_image_plan" {
+  description = "The Marketplace offering's plan if it has one in Marketplace URN style, name:product:publisher"
+  type        = string
+  default     = ""
+}
+
 variable "tags" {
   description = "A set of tags that will be assigned to resources along with required"
   type        = map
