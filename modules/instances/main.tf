@@ -182,11 +182,12 @@ resource "azurerm_linux_virtual_machine" "psql" {
 # extra large but only ever zero can be deployed when the operating mode is set
 # to standard
 resource "azurerm_availability_set" "compiler_availability_set" {
-  name                = "pe-compiler-${count.index}-${var.id}"
-  count               = local.av_set
-  location            = var.region
-  resource_group_name = var.resource_group.name
-  tags = var.tags
+  name                        = "pe-compiler-${count.index}-${var.id}"
+  count                       = local.av_set
+  location                    = var.region
+  resource_group_name         = var.resource_group.name
+  platform_fault_domain_count = 2
+  tags                        = var.tags
 }
 
 resource "azurerm_public_ip" "compiler_public_ip" {
