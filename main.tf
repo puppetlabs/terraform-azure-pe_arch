@@ -126,4 +126,5 @@ module "instances" {
   region             = var.region
   server_count       = data.hiera5.server_count.value
   database_count     = data.hiera5.database_count.value
+  domain_name        = var.domain_name
 }

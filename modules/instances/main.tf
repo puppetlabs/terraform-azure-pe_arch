@@ -90,7 +90,7 @@ resource "azurerm_linux_virtual_machine" "server" {
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
   # for consistency with other providers I thought it would work best to put this tag on the instance
   tags        = merge({
-    internalDNS = "pe-server-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}"
+    internalDNS = var.domain_name == null ? "pe-server-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}" : "pe-server-${count.index}-${var.id}.${var.domain_name}"
   }, var.tags)
 }
 
@@ -171,8 +171,8 @@ resource "azurerm_linux_virtual_machine" "psql" {
 
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
   # for consistency with other providers I thought it would work best to put this tag on the instance
-  tags        = merge({
-    internalDNS = "pe-psql-${count.index}-${var.id}.${azurerm_network_interface.psql_nic[count.index].internal_domain_name_suffix}"
+  tags = merge({
+    internalDNS = var.domain_name == null ? "pe-psql-${count.index}-${var.id}.${azurerm_network_interface.psql_nic[count.index].internal_domain_name_suffix}" : "pe-psql-${count.index}-${var.id}.${var.domain_name}"
   }, var.tags)
 }
 
@@ -265,7 +265,7 @@ resource "azurerm_linux_virtual_machine" "compiler" {
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
   # for consistency with other providers I thought it would work best to put this tag on the instance
   tags = merge({
-    internalDNS = "pe-compiler-${count.index}-${var.id}.${azurerm_network_interface.compiler_nic[count.index].internal_domain_name_suffix}"
+    internalDNS = var.domain_name == null ? "pe-compiler-${count.index}-${var.id}.${azurerm_network_interface.compiler_nic[count.index].internal_domain_name_suffix}" : "pe-compiler-${count.index}-${var.id}.${var.domain_name}"
   }, var.tags)
 }
 
@@ -344,6 +344,6 @@ resource "azurerm_linux_virtual_machine" "node" {
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
   # for consistency with other providers I thought it would work best to put this tag on the instance
   tags = merge({
-    internalDNS = "pe-node-${count.index}-${var.id}.${azurerm_network_interface.node_nic[count.index].internal_domain_name_suffix}"
+    internalDNS = var.domain_name == null ? "pe-node-${count.index}-${var.id}.${azurerm_network_interface.compiler_nic[count.index].internal_domain_name_suffix}" : "pe-node-${count.index}-${var.id}.${var.domain_name}"
   }, var.tags)
 }
