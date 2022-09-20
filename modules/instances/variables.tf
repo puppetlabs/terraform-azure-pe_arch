@@ -82,3 +82,8 @@ variable "region" {
   description = "Region to create instances in"
   type        = string
 }
+variable "domain_name" {
+  description = "Custom domain to use for internalDNS"
+  type        = string
+  default     = null
+}
