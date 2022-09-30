@@ -11,6 +11,17 @@ variable "ssh_key" {
   description = "Location on disk of the SSH public key to be used for instance SSH access"
   type        = string
 }
+
+variable "windows_user" {
+  description = "Instance user name that will used for WINRM operations"
+  type        = string
+}
+variable "windows_password" {
+  description = "Password to be used for instance WINRM access"
+  type        = string
+  sensitive   = true
+}
+
 variable "compiler_count" {
   description = "The quantity of compilers that are deployed behind a load balancer and will be spread across defined zones"
   type        = number

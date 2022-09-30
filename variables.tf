@@ -6,6 +6,15 @@ variable "user" {
   description = "Instance user name that will used for SSH operations"
   type        = string
 }
+variable "windows_user" { 
+  description = "Instance user name that will used for WINRM operations"
+  type        = string
+}
+variable "windows_password" { 
+  description = "Password that will used for WINRM operations"
+  type        = string
+  sensitive   = true
+}
 variable "ssh_key" {
   description = "Location on disk of the SSH public key to be used for instance SSH access"
   type        = string
@@ -22,7 +31,7 @@ variable "compiler_count" {
   default     = 1
 }
 variable "node_count" {
-  description = "The quantity of nodes that are deployed within the environment for testing"
+  description = "The quantity of Linux nodes that are deployed within the environment for testing"
   type        = number
   default     = 0
 }

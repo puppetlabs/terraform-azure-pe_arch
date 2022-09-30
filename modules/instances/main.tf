@@ -380,8 +380,8 @@ resource "azurerm_windows_virtual_machine" "windows_node" {
   resource_group_name    = var.resource_group.name
   location               = var.region
   size                   = "Standard_D4_v4"
-  admin_username         = var.user
-  admin_password         = "Pupp3tL@b5P0rtl@nd!"
+  admin_username         = var.windows_user
+  admin_password         = var.windows_password
   network_interface_ids  = [
     azurerm_network_interface.windows_node_nic[count.index].id,
   ]
@@ -418,7 +418,7 @@ resource "azurerm_windows_virtual_machine" "windows_node" {
   }
 
   winrm_listener {
-    protocol = 'Http'
+    protocol = "Http"
   }
 
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
