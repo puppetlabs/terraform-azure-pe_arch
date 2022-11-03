@@ -2,6 +2,8 @@ locals {
   av_set = var.compiler_count > 0 ? 1 : 0
   dynamic_image_reference = var.image_id == null ? [1] : []
   dynamic_image_plan = var.image_id == null ? length(compact([var.plan_name, var.plan_product, var.plan_publisher])) == 3 ? [1] : []  : []
+  windows_dynamic_image_reference = var.windows_image_id == null ? [1] : []
+  windows_dynamic_image_plan = var.windows_image_id == null ? length(compact([var.windows_plan_name, var.windows_plan_product, var.windows_plan_publisher])) == 3 ? [1] : []  : []
 }
 
 resource "azurerm_ssh_public_key" "pe_adm" {
@@ -151,21 +153,21 @@ resource "azurerm_linux_virtual_machine" "psql" {
   source_image_id = var.image_id
 
   dynamic "source_image_reference" {
-    for_each = local.dynamic_image_reference
+    for_each = local.windows_dynamic_image_reference
     content {
-      publisher = var.image_publisher
-      offer     = var.image_offer
-      sku       = var.image_sku
-      version   = var.image_version
+      publisher = var.windows_image_publisher
+      offer     = var.windows_image_offer
+      sku       = var.windows_image_sku
+      version   = var.windows_image_version
     }
   }
 
   dynamic "plan" {
-    for_each = local.dynamic_image_plan
+    for_each = local.windows_dynamic_image_plan
     content {
-      name      = var.plan_name
-      product   = var.plan_product
-      publisher = var.plan_publisher
+      name      = var.windows_plan_name
+      product   = var.windows_plan_product
+      publisher = var.windows_plan_publisher
     }
   }
 
@@ -345,5 +347,83 @@ resource "azurerm_linux_virtual_machine" "node" {
   # for consistency with other providers I thought it would work best to put this tag on the instance
   tags = merge({
     internalDNS = var.domain_name == null ? "pe-node-${count.index}-${var.id}.${azurerm_network_interface.node_nic[count.index].internal_domain_name_suffix}" : "pe-node-${count.index}-${var.id}.${var.domain_name}"
+  }, var.tags)
+}
+
+resource "azurerm_public_ip" "windows_node_public_ip" {
+  name                = "pe-windows-node-${count.index}-${var.id}"
+  resource_group_name = var.resource_group.name
+  location            = var.region
+  count               = var.windows_node_count
+  allocation_method   = "Static"
+  tags = var.tags
+}
+
+resource "azurerm_network_interface" "windows_node_nic" {
+  name                = "pe-windows-node-${count.index}-${var.id}"
+  location            = var.region
+  count               = var.windows_node_count
+  resource_group_name = var.resource_group.name
+  tags                = var.tags
+  ip_configuration {
+    name                          = "windows-node"
+    subnet_id                     = var.subnet_id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.windows_node_public_ip[count.index].id
+  }
+}
+
+resource "azurerm_windows_virtual_machine" "windows_node" {
+  name                   = "pe-windows-node-${count.index}-${var.id}"
+  computer_name          = "pe-wn-${count.index}-${var.id}"
+  count                  = var.windows_node_count
+  resource_group_name    = var.resource_group.name
+  location               = var.region
+  size                   = "Standard_D4_v4"
+  admin_username         = var.windows_user
+  admin_password         = var.windows_password
+  network_interface_ids  = [
+    azurerm_network_interface.windows_node_nic[count.index].id,
+  ]
+
+  depends_on = [
+    azurerm_network_interface.windows_node_nic
+  ]
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+    disk_size_gb         = 30
+  }
+  
+  source_image_id = var.windows_image_id
+
+  dynamic "source_image_reference" {
+    for_each = local.windows_dynamic_image_reference
+    content {
+      publisher = var.windows_image_publisher
+      offer     = var.windows_image_offer
+      sku       = var.windows_image_sku
+      version   = var.windows_image_version
+    }
+  }
+
+  dynamic "plan" {
+    for_each = local.windows_dynamic_image_plan
+    content {
+      name      = var.windows_plan_name
+      product   = var.windows_plan_product
+      publisher = var.windows_plan_publisher
+    }
+  }
+
+  winrm_listener {
+    protocol = "Http"
+  }
+
+  # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
+  # for consistency with other providers I thought it would work best to put this tag on the instance
+  tags = merge({
+    internalDNS = "pe-windows-node-${count.index}-${var.id}.${azurerm_network_interface.windows_node_nic[count.index].internal_domain_name_suffix}"
   }, var.tags)
 }

@@ -11,6 +11,17 @@ variable "ssh_key" {
   description = "Location on disk of the SSH public key to be used for instance SSH access"
   type        = string
 }
+
+variable "windows_user" {
+  description = "Instance user name that will used for WINRM operations"
+  type        = string
+}
+variable "windows_password" {
+  description = "Password to be used for instance WINRM access"
+  type        = string
+  sensitive   = true
+}
+
 variable "compiler_count" {
   description = "The quantity of compilers that are deployed behind a load balancer and will be spread across defined zones"
   type        = number
@@ -74,6 +85,42 @@ variable "node_count" {
   description = "The quantity of nodes that are deployed within the environment for testing"
   type        = number
 }
+
+variable "windows_image_id" {
+  description = "The custom image ID to use for deploying new cloud instances"
+}
+variable "windows_image_offer" {
+  description = "The Marketplace image offer to use when deploying new cloud instances"
+  type        = string
+}
+variable "windows_image_publisher" {
+  description = "The Marketplace image publisher to deploy from for new cloud instances"
+  type        = string
+}
+variable "windows_image_version" {
+  description = "The Marketplace image version to deploy from for new cloud instances"
+  type        = string
+}
+variable "windows_image_sku" {
+  description = "The Marketplace sku to use when deploying new cloud instances"
+  type        = string
+}
+variable "windows_plan_name" {
+  description = "The Marketplace image plan name"
+}
+variable "windows_plan_product" {
+  description = "The Marketplace image product name"
+  type        = string
+}
+variable "windows_plan_publisher" {
+  description = "The Marketplace image publisher name"
+  type        = string
+}
+variable "windows_node_count" {
+  description = "The quantity of windows nodes that are deployed within the environment for testing"
+  type        = number
+}
+
 variable "tags" {
   description = "A set of tags that will be assigned to resources along with required"
   type        = map
