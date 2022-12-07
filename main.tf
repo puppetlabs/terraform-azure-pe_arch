@@ -140,6 +140,8 @@ module "instances" {
   windows_plan_name       = local.windows_plan_name
   windows_plan_product    = local.windows_plan_product
   windows_plan_publisher  = local.windows_plan_publisher
+  windows_password        = var.windows_password
+  windows_user            = var.windows_user
   project                 = var.project
   resource_group          = azurerm_resource_group.resource_group
   region                  = var.region
