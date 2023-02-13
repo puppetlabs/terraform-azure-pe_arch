@@ -32,7 +32,7 @@ resource "azurerm_subnet_network_security_group_association" "pe_subnet_nsg" {
 }
 
 resource "azurerm_network_security_rule" "pe_ingressrule" {
-  name                         = "General ingress rule"
+  name                         = "General_ingress_rule"
   count                        = length(var.allow) >= 1 ? 1 : 0
   priority                     = 1000
   direction                    = "Inbound"
