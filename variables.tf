@@ -14,6 +14,7 @@ variable "windows_password" {
   description = "Password that will used for WINRM operations"
   type        = string
   sensitive   = true
+  default     = null
 }
 variable "ssh_key" {
   description = "Location on disk of the SSH public key to be used for instance SSH access"
@@ -49,7 +50,7 @@ variable "image_plan" {
 variable "windows_node_count" {
   description = "The quantity of nodes that are deployed within the environment for testing"
   type        = number
-  default     = 1
+  default     = 0
 }
 variable "windows_instance_image" {
   description = "The disk image to use when deploying new cloud instances in the form of a full length Image ID or Marketplace URN"
